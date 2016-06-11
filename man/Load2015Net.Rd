@@ -12,4 +12,10 @@ A network object of the 2015 preferred associations with nodal attributes
 \description{
 Load the 2015 SRKW Preferred Association Network
 }
+\details{
+The 2015 preferred association network is based on sightings data of SRKW matrilines from May to September of 2015. Preferred associations were determined by computing half weigth indexes of association and then using a randomization test to determine significant dyads (Bejder et al. 1998).
+}
+\references{
+Bejder L., Fletcher D., and Brager S. 1998. "A method for testing association patterns of animals." Animal Behavior, vol. 56, no. 3, pp.719-725
+}
 

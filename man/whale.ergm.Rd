@@ -7,12 +7,15 @@
 whale.ergm(net)
 }
 \arguments{
-\item{net}{A network object}
+\item{net}{A network object containing nodal attributes pod (pod identity), male (presence of an adult male), and prf (presence of post-reproductive females), such as returned by Load2015Net.}
 }
 \value{
-An ergm object
+An ergm object containing parameters for edges, nodematch("pod"), nodefactor(c("male", "prf")), gwesp(0.5, fixed=T), and isolates (which will be fixed at -Inf for the 2015 network)
 }
 \description{
 Create the ergm used in the original analysis
+}
+\details{
+This function is essentially a shortcut to generate the ergm used in the analysis of the 2015 network that I performed. The model terms used are edges, uniform pod homophily, node factor by social roles, isolates (fixed at -Inf), and GWESP with alpha=0.5. The MCMC sample size and interval are both set to 5,000.
 }
 
