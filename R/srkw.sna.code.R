@@ -1,3 +1,6 @@
+#' Load the 2015 SRKW Preferred Association Network
+#'
+#' @return A network object of the 2015 preferred associations with nodal attributes
 Load2015Net <- function(){ #load in the 2015 whale network
   adjacency.matrix <- as.matrix(read.csv("~/srkw.nonkin.sna/data/2015.adjmat.csv", row.names=1))
   n <- network(adjacency.matrix, directed=F) #Loads the adjacency matrix as a network
@@ -11,11 +14,19 @@ Load2015Net <- function(){ #load in the 2015 whale network
   n #return the network with attributes
 }
 
+#' Create the ergm used in the original analysis
+#'
+#' @param net A network object
+#' @return An ergm object
 whale.ergm <- function(net){
   model <- ergm(net ~ edges + nodematch("pod") + nodefactor(c("male", "prf")) + gwesp(0.5, fixed=T) + isolates, control=control.ergm(MCMC.samplesize=5000, MCMC.interval=5000)) #parameter estimation for whale network
   model
 }
 
+#' Converts the whale network from a network object to a graph object
+#'
+#' @param net A network object, containing the nodal attributes used by Load2015Net()
+#' @return A graph object version of the network
 NetGraph <- function(net){#turn whale network into a graph object for community detection
   g <- graph.adjacency(as.matrix(net), mode="undirected") #Make the graph
   V(g)$male <- ifelse(net%v%"male"=="m", 1, 0) #Import vertex attributes
@@ -25,6 +36,11 @@ NetGraph <- function(net){#turn whale network into a graph object for community 
   g #Return graph object
 }
 
+#' Goodness of fit diagnostics for ERGM based on community structure
+#'
+#' @param model An ergm object
+#' @param sample.size The number of simulations to perform. Defaults to 500
+#' @return A plot of densities of number of components, communities, and modularity based on the ergm, compared to initial network.
 whale.community.gof <- function(model, sample.size=500){ #In addition to the gof function built into the ergm package, this function was written to assess how well a model reproduces the community structure, modularity, and number of connected components in a network
   output <- matrix(nrow=sample.size, ncol=3)
   colnames(output) <- c("n.components", "n.communities", "modularity")
@@ -44,6 +60,11 @@ whale.community.gof <- function(model, sample.size=500){ #In addition to the gof
   abline(v=modularity(optimal.community(NetGraph(model$network))))
 }
 
+#' Test for unusually high number of cross-pod dyad types based on an ergm via simulation
+#'
+#' @param model The ergm to simulate from
+#' @param reps The number of networks to simulate. Defaults to 10,000.
+#' @return A matrix containing the number of total cross-pod dyads, and dyads of each type, for each simulation
 simulate.nonkin <- function(model, reps=10000){#This function simulates from an ergm of the whale network and stores information about the types of cross-pod dyads that occur. The "model" argument indicates which ergm to simulate from. The "reps" argument defines number of simulations. The default is 10,000 simulations.
   output <- matrix(nrow=reps, ncol=4) #Make your output matrix
   colnames(output) <- c("cp.tot", "cp.tandem", "cp.m.empty",  "cp.m.m") #Name your columns
@@ -58,6 +79,10 @@ simulate.nonkin <- function(model, reps=10000){#This function simulates from an 
   output #Return output matrix after all reps complete
 }
 
+#' Produce a violin plot of the results of simulate.nonkin
+#'
+#' @param simresults A matrix produced by simulate.nonkin
+#' @return A violin plot of the results, with observed values plotted in red
 simresults.vioplot <- function(simresults){ #Plot results of simulation. simresults is a matrix produced by simulate.nonkin()
   simresults.sub <- simresults[simresults[,"cp.tot"]!=0,] #Remove cases with no cross-pod ties
   p.tandem <- simresults.sub[,"cp.tandem"]/simresults.sub[,"cp.tot"] #Porion tandem
